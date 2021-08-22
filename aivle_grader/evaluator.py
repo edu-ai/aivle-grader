@@ -1,48 +1,31 @@
-from abc import ABCMeta, abstractmethod
+from aivle_grader.abc.evaluator import Evaluator, EvaluationResult
 
 
-class EvaluationResult(object):
-    def __init__(self, value, error, name: str = "score", results=None):
-        if results is None:
-            results = []
-        self.name = name
-        self.results = results
-        self.value = value
-        self.error = error
-
-    def get_json(self) -> dict:
-        return {
-            "name": self.name,
-            "results": self.results,
-            "value": self.value,
-            "error": self.error,
-        }
-
-
-class Evaluator(metaclass=ABCMeta):
+class RewardEvaluator(Evaluator):
     def __init__(self):
-        self._error = None
+        super().__init__()
+        self.error = None
+        self.episodes = []
+        self.total_reward = 0
 
-    @abstractmethod
     def reset(self) -> None:
-        pass
+        self.episodes = []
 
-    @abstractmethod
     def run(self) -> None:
-        pass
+        self.episodes.append([])
 
-    @abstractmethod
     def step(self, full_state) -> None:
-        pass
+        self.episodes[-1].append(full_state["reward"])
 
-    @abstractmethod
     def done(self) -> None:
-        pass
+        # TODO
+        total_reward_per_episode = [sum(r) for r in self.episodes]
+        self.total_reward = sum(total_reward_per_episode)
 
-    def terminate(self, e: Exception) -> None:
-        self._error = e
-        self.done()
-
-    @abstractmethod
     def get_result(self) -> EvaluationResult:
-        pass
+        return EvaluationResult(
+            name="reward evaluation",
+            value=self.total_reward / len(self.episodes),
+            results=self.episodes,
+            error=self.error,
+        )

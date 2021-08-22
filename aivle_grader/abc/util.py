@@ -1,7 +1,7 @@
 import signal
 from contextlib import contextmanager
 
-from aivle_grader.exception import TimeoutException
+from aivle_grader.abc.exception import TimeoutException
 
 
 @contextmanager

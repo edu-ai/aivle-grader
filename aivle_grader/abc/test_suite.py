@@ -1,8 +1,8 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from typing import List, Callable
 
-from aivle_grader.agent import Agent
-from aivle_grader.test_case import TestCase
+from aivle_grader.abc.agent import Agent
+from aivle_grader.abc.test_case import TestCase
 
 
 class TestSuite(metaclass=ABCMeta):

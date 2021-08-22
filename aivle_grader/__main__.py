@@ -1,4 +1,4 @@
-from aivle_grader.exception import TestSuiteNotFound, AgentNotFound
+from aivle_grader.abc.exception import TestSuiteNotFound, AgentNotFound
 
 
 def main():
@@ -11,7 +11,8 @@ def main():
     except ModuleNotFoundError as e:
         raise AgentNotFound(e)
     result = test_suite.run(create_agent)
-    print(result)
+    for r in result:
+        print(r.get_json())
 
 
 if __name__ == "__main__":

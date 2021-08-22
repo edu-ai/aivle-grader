@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# testing stuff
+/gym-grid-driving/
+aivle_grader/my_agent/*
+!aivle_grader/my_agent/.gitkeep
+!aivle_grader/my_agent/__init__.py
+aivle_grader/my_test_suite/*
+!aivle_grader/my_test_suite/.gitkeep
+!aivle_grader/my_test_suite/__init__.py

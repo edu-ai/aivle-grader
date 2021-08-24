@@ -11,8 +11,7 @@ def main():
     except ModuleNotFoundError as e:
         raise AgentNotFound(e)
     result = test_suite.run(create_agent)
-    for r in result:
-        print(r.get_json())
+    print(result)
 
 
 if __name__ == "__main__":

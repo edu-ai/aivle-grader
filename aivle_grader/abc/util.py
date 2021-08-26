@@ -8,8 +8,10 @@ from aivle_grader.abc.exception import TimeoutException
 def time_limiter(seconds):
     # Reference: https://stackoverflow.com/a/601168
     if seconds:
+
         def signal_handler(signum, frame):
             raise TimeoutException("Timed out!")
+
         signal.signal(signal.SIGALRM, signal_handler)
         signal.alarm(seconds)
     try:

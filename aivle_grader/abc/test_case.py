@@ -16,10 +16,25 @@ class TestCase(metaclass=ABCMeta):
         case_id
         time_limit
         n_runs: number of episodes to run
-        agent_init (TODO): init params passed to __init__ method of Agent
+        agent_init: init params passed to __init__ method of Agent
         env: OpenAI Gym compatible environment
         evaluator: Evaluator object
     """
+
+    def evaluate(self, create_agent: Callable[..., Agent]) -> EvaluationResult:
+        """Runs `env` with provided agent for `n_runs` times under `time_limit`
+        with `evaluator` attached.
+
+        :param create_agent: a function that returns an Agent
+        :return: EvaluationResult
+        """
+        try:
+            with time_limiter(self.time_limit):
+                agent = create_agent(self.case_id, **self._agent_init)
+                return self.run(agent)
+        except Exception as e:
+            return self._terminate(e)
+
     def __init__(
         self,
         case_id,
@@ -32,23 +47,9 @@ class TestCase(metaclass=ABCMeta):
         self.case_id = case_id
         self.time_limit = time_limit
         self.n_runs = n_runs
-        self._agent_init = agent_init
+        self._agent_init = {} if agent_init is None else agent_init
         self.env = env
         self.evaluator = evaluator
-
-    def evaluate(self, create_agent: Callable[..., Agent]) -> EvaluationResult:
-        """Runs `env` with provided agent for `n_runs` times under `time_limit`
-        with `evaluator` attached.
-
-        :param create_agent: a function that returns an Agent
-        :return: EvaluationResult
-        """
-        try:
-            with time_limiter(self.time_limit):
-                agent = create_agent(self.case_id)
-                return self.run(agent)
-        except Exception as e:
-            return self._terminate(e)
 
     @abstractmethod
     def run(self, agent) -> EvaluationResult:

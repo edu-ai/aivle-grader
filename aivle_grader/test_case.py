@@ -28,13 +28,12 @@ class ReinforcementLearningTestCase(TestCase):
             )  # provide fixed random seed for each episode
 
     def run(self, agent):
-        self.evaluator.reset()
         for i_episode in range(self.n_runs):
-            self.evaluator.run()
             state = self.env.reset()
             if self.use_seed:
                 self.env.seed(self.seeds[i_episode])
             agent.reset()
+            self.evaluator.reset()
             for t in range(self.t_max):
                 action = agent.step(state)
                 next_state, reward, done, info = self.env.step(action)
@@ -53,5 +52,4 @@ class ReinforcementLearningTestCase(TestCase):
                 state = next_state
                 if done:
                     break
-        self.evaluator.done()
         return self.evaluator.get_result()

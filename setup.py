@@ -8,7 +8,6 @@ setup(
     author="Yuanhong Tan",
     author_email="tan.yuanhong@u.nus.edu",
     packages=["aivle_grader"],
-    install_requires=[
-        "gym"
-    ],
-    zip_safe=False)
+    install_requires=["gym"],
+    zip_safe=False,
+)

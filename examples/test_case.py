@@ -28,15 +28,14 @@ class GridDrivingTestCase(TestCase):
             )  # provide fixed random seed for each episode
 
     def run(self, agent):
-        self.evaluator.reset()
         for i_episode in range(self.n_runs):
-            self.evaluator.run()
             if self.use_seed:
                 # this is not the correct implementation of seeds in Gym env
                 # but for backward compatible purposes I followed how Rizki did it...
                 self.env.random_seed = self.seeds[i_episode]
             state = self.env.reset()
             agent.reset()
+            self.evaluator.reset()
             for t in range(self.t_max):
                 action = agent.step(state)
                 next_state, reward, done, info = self.env.step(action)
@@ -55,5 +54,4 @@ class GridDrivingTestCase(TestCase):
                 state = next_state
                 if done:
                     break
-        self.evaluator.done()
         return self.evaluator.get_result()

@@ -2,8 +2,8 @@ from abc import ABCMeta, abstractmethod
 
 
 class Agent(metaclass=ABCMeta):
-    """Abstract base class for grader-compatible agents.
-    """
+    """Abstract base class for grader-compatible agents."""
+
     @abstractmethod
     def step(self, state):
         """Returns an action from observed state.

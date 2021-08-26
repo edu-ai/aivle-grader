@@ -7,6 +7,8 @@ from aivle_grader.abc.test_case import TestCase
 
 
 class GridDrivingTestCase(TestCase):
+    """Custom test case for grid driving task"""
+
     def __init__(
         self,
         t_max: int,

@@ -9,8 +9,10 @@ from aivle_grader.abc.test_case import TestCase
 class ReinforcementLearningTestCase(TestCase):
     def __init__(
         self,
-        t_max: int,
-        seeds: List[int],
+        t_max: int,  # max steps per episode
+        seeds: List[
+            int
+        ],  # list of seeds for every episode, either empty or same length as n_runs
         case_id,
         time_limit: float,
         n_runs: int,

@@ -1,8 +1,6 @@
 from abc import ABCMeta, abstractmethod
-from typing import Callable, List, Type, Dict
+from typing import Callable
 
-import aivle_gym.agent_env
-from aivle_gym.agent_env import AgentEnv
 import gym
 
 from aivle_grader.abc.agent import Agent
@@ -38,13 +36,13 @@ class TestCase(metaclass=ABCMeta):
             return self._terminate(e)
 
     def __init__(
-            self,
-            case_id,
-            time_limit: float,
-            n_runs: int,
-            agent_init: dict,
-            env: gym.Env,
-            evaluator: Evaluator,
+        self,
+        case_id,
+        time_limit: float,
+        n_runs: int,
+        agent_init: dict,
+        env: gym.Env,
+        evaluator: Evaluator,
     ):
         self.case_id = case_id
         self.time_limit = time_limit

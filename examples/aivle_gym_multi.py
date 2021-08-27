@@ -16,8 +16,14 @@ from aivle_grader.test_suite import TestSuite
 class PongJudgeEnv(JudgeMultiEnv):
     def __init__(self):
         self.env = gym.make("PongDuel-v0")
-        super().__init__(PongEnvSerializer(), self.env.action_space, self.env.observation_space, self.env.reward_range,
-                         self.env.n_agents, {0: 0, 1: 1})
+        super().__init__(
+            PongEnvSerializer(),
+            self.env.action_space,
+            self.env.observation_space,
+            self.env.reward_range,
+            self.env.n_agents,
+            {0: 0, 1: 1},
+        )
 
     def step(self, action):
         return self.env.step(action)
@@ -25,7 +31,7 @@ class PongJudgeEnv(JudgeMultiEnv):
     def reset(self):
         return self.env.reset()
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         return self.env.render(mode=mode)
 
     def close(self):
@@ -58,8 +64,13 @@ class PongEnvSerializer(EnvSerializer):
 class PongAgentEnv(AgentEnv):
     def __init__(self, uid):
         base_env = gym.make("PongDuel-v0")
-        super().__init__(PongEnvSerializer(), base_env.action_space[0], base_env.observation_space[0],
-                         base_env.reward_range, uid=uid)
+        super().__init__(
+            PongEnvSerializer(),
+            base_env.action_space[0],
+            base_env.observation_space[0],
+            base_env.reward_range,
+            uid=uid,
+        )
 
 
 class PongAgent(Agent):
@@ -90,7 +101,7 @@ def execute(uid, q: Queue):
         seeds=seeds,
         case_id=0,
         time_limit=3600,
-        n_runs=n_runs
+        n_runs=n_runs,
     )
     ts = TestSuite(suite_id=f"pong_{uid}", cases=[tc])
     result = ts.run(create_agent)
@@ -117,6 +128,7 @@ def main():
         print(e)
     finally:
         judge_proc.terminate()
+        judge_env.close()
 
 
 if __name__ == "__main__":

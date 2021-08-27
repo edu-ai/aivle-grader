@@ -1,6 +1,4 @@
 import logging
-import sys
-import time
 from multiprocessing import Process, Queue
 
 import gym
@@ -79,14 +77,14 @@ def create_agent(case_id, *args, **kwargs):
     return PongAgent()
 
 
-def run0():
+def execute(uid, q: Queue):
     n_runs = 10
     evaluator = RewardEvaluator()
-    agent_env_0 = PongAgentEnv(uid=0)
+    agent_env = PongAgentEnv(uid=uid)
     seeds = []
-    tc_0_0 = ReinforcementLearningTestCase(
+    tc = ReinforcementLearningTestCase(
         t_max=10000,
-        env=agent_env_0,
+        env=agent_env,
         evaluator=evaluator,
         agent_init={},
         seeds=seeds,
@@ -94,107 +92,32 @@ def run0():
         time_limit=3600,
         n_runs=n_runs
     )
-    ts_0 = TestSuite(suite_id="pong_0", cases=[tc_0_0])
-    ts_0.run(create_agent)
-
-
-def run1():
-    n_runs = 10
-    evaluator = RewardEvaluator()
-    agent_env_0 = PongAgentEnv(uid=1)
-    seeds = []
-    tc_0_0 = ReinforcementLearningTestCase(
-        t_max=10000,
-        env=agent_env_0,
-        evaluator=evaluator,
-        agent_init={},
-        seeds=seeds,
-        case_id=0,
-        time_limit=3600,
-        n_runs=n_runs
-    )
-    ts_0 = TestSuite(suite_id="pong_1", cases=[tc_0_0])
-    ts_0.run(create_agent)
+    ts = TestSuite(suite_id=f"pong_{uid}", cases=[tc])
+    result = ts.run(create_agent)
+    q.put({"uid": uid, "result": result})
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
-    # judge_env = PongJudgeEnv()
-    # judge_proc = Process(target=judge_env.start, args=())
-    # judge_proc.start()
-    ts_0_proc = None
-    ts_1_proc = None
-    try:
-        ts_0_proc = Process(target=run0)
-        ts_1_proc = Process(target=run1)
-        ts_0_proc.start()
-        ts_1_proc.start()
-        # ts_0_proc.join()
-        # ts_1_proc.join()
-    except Exception as e:
-        print(e)
-    finally:
-        # print(judge_proc.exitcode)
-        # judge_proc.terminate()
-        if ts_0_proc is not None:
-            print(ts_0_proc.exitcode)
-            ts_0_proc.terminate()
-        if ts_1_proc is not None:
-            print(ts_1_proc.exitcode)
-            ts_1_proc.terminate()
-
-
-def main2():
-    n_runs = 10
-    evaluator = RewardEvaluator()
-    agent_env_0 = PongAgentEnv(uid=0)
-    seeds = [23333 for _ in range(n_runs)]
-    tc_0_0 = ReinforcementLearningTestCase(
-        t_max=10000,
-        env=agent_env_0,
-        evaluator=evaluator,
-        agent_init={},
-        seeds=seeds,
-        case_id=0,
-        time_limit=3600,
-        n_runs=n_runs
-    )
-    ts_0 = TestSuite(suite_id="pong_0", cases=[tc_0_0])
-    ts_0.run(create_agent)
-
-
-def main3():
-    n_runs = 10
-    evaluator = RewardEvaluator()
-    agent_env_0 = PongAgentEnv(uid=1)
-    seeds = [23333 for _ in range(n_runs)]
-    tc_0_0 = ReinforcementLearningTestCase(
-        t_max=10000,
-        env=agent_env_0,
-        evaluator=evaluator,
-        agent_init={},
-        seeds=seeds,
-        case_id=0,
-        time_limit=3600,
-        n_runs=n_runs
-    )
-    ts_0 = TestSuite(suite_id="pong_1", cases=[tc_0_0])
-    ts_0.run(create_agent)
-
-
-def main4():
     judge_env = PongJudgeEnv()
     judge_proc = Process(target=judge_env.start, args=())
     judge_proc.start()
-    env_0 = PongAgentEnv(uid=0)
-    env_1 = PongAgentEnv(uid=1)
-    evaluators = [RewardEvaluator() for _ in range(2)]
-    tc = MultiAgentTestCase(case_id="multi_tc_0", time_limit=10.0, n_runs=2, n_agents=2, envs=[env_0, env_1],
-                            evaluators=evaluators, t_max=10000, agent_init={})
-    create_agents = [create_agent for _ in range(2)]
-    tc.evaluate(create_agents)
+    q = Queue()
+    try:
+        ts_0_proc = Process(target=execute, args=(0, q))
+        ts_1_proc = Process(target=execute, args=(1, q))
+        ts_0_proc.start()
+        ts_1_proc.start()
+        ts_0_proc.join()
+        ts_1_proc.join()
+        while not q.empty():
+            print(q.get())
+    except Exception as e:
+        print(e)
+    finally:
+        judge_proc.terminate()
 
 
 if __name__ == "__main__":
-    run1()
+    main()

@@ -9,10 +9,8 @@ from aivle_grader.abc.test_case import TestCase
 class ReinforcementLearningTestCase(TestCase):
     def __init__(
         self,
-        t_max: int,  # max steps per episode
-        seeds: List[
-            int
-        ],  # list of seeds for every episode, either empty or same length as n_runs
+        t_max: int,
+        seeds: List[int],
         case_id,
         time_limit: float,
         n_runs: int,
@@ -20,6 +18,12 @@ class ReinforcementLearningTestCase(TestCase):
         evaluator: Evaluator,
         agent_init: dict = None,
     ):
+        """
+        Additional params please refer to `TestCase` base class.
+
+        :param t_max: maximum steps per episode
+        :param seeds: list of seeds for every episode, either empty or same length as n_runs
+        """
         super().__init__(case_id, time_limit, n_runs, agent_init, env, evaluator)
         self.t_max = t_max
         self.seeds = seeds

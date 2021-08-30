@@ -1,8 +1,7 @@
-import logging
 from multiprocessing import Process, Queue
 
 import gym
-import ma_gym
+import ma_gym  # noqa # pylint: disable=unused-import
 from aivle_gym.agent_env import AgentEnv
 from aivle_gym.env_serializer import EnvSerializer
 from aivle_gym.judge_multi_env import JudgeMultiEnv
@@ -84,7 +83,7 @@ class PongAgent(Agent):
         pass
 
 
-def create_agent(case_id, *args, **kwargs):
+def create_agent(**kwargs):
     return PongAgent()
 
 
@@ -99,7 +98,7 @@ def execute(uid, q: Queue):
         evaluator=evaluator,
         agent_init={},
         seeds=seeds,
-        case_id=0,
+        case_id=1,
         time_limit=3600,
         n_runs=n_runs,
     )
@@ -109,8 +108,6 @@ def execute(uid, q: Queue):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-
     judge_env = PongJudgeEnv()
     judge_proc = Process(target=judge_env.start, args=())
     judge_proc.start()
@@ -122,8 +119,11 @@ def main():
         ts_1_proc.start()
         ts_0_proc.join()
         ts_1_proc.join()
+        eval_results = []
         while not q.empty():
-            print(q.get())
+            eval_results.append(q.get())
+            print(eval_results[-1])
+        #  decide who's the winner here!
     except Exception as e:
         print(e)
     finally:

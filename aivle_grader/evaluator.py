@@ -2,6 +2,8 @@ from aivle_grader.abc.evaluator import Evaluator, EvaluationResult
 
 
 class RewardEvaluator(Evaluator):
+    """Evaluates average reward across episodes."""
+
     def __init__(self):
         super().__init__()
         self.episodes = []
@@ -18,12 +20,14 @@ class RewardEvaluator(Evaluator):
         return EvaluationResult(
             name="reward evaluation",
             value=total_reward / len(self.episodes),
-            results=self.episodes,
+            results=total_reward_per_episode,
             error=self.error,
         )
 
 
 class StepCountEvaluator(Evaluator):
+    """Evaluates average number of steps across episodes."""
+
     def __init__(self):
         super().__init__()
         self.total_episodes = 0

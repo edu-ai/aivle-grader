@@ -13,5 +13,5 @@ def create_agent(case_id, *args, **kwargs):
 """
 
 
-def create_agent(case_id, *args, **kwargs):
-    return DQNAgent(*args, **kwargs)
+def create_agent(**kwargs):
+    return DQNAgent(**kwargs)

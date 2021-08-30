@@ -18,11 +18,19 @@ class TestResult:
 
 
 class TestSuite:
+    """TestSuite is a collection of TestCase."""
+
     def __init__(self, suite_id, cases: List[TestCase]):
         self.suite_id = suite_id
         self.test_cases = cases
 
-    def run(self, create_agent: Callable[[], Agent]) -> List[TestResult]:
+    def run(self, create_agent: Callable[..., Agent]) -> List[TestResult]:
+        """Run the test cases in this test suite.
+
+        :param create_agent: a function that returns an `Agent` object. Parameters
+        to this function will be passed to the constructor of the underlying `Agent` object.
+        :return:
+        """
         results = []
         for case in self.test_cases:
             res = case.evaluate(create_agent)

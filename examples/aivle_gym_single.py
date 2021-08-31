@@ -78,7 +78,7 @@ class CartPoleAgent(Agent):
         pass
 
 
-def create_agent(case_id, *args, **kwargs):
+def create_agent(**kwargs):
     return CartPoleAgent()
 
 

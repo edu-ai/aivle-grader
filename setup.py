@@ -7,7 +7,8 @@ setup(
     url="https://github.com/edu-ai/aivle-grader",
     author="Yuanhong Tan",
     author_email="tan.yuanhong@u.nus.edu",
-    packages=["aivle_grader"],
+    packages=["aivle_grader", "aivle_grader.abc"],
     install_requires=["gym"],
+    setup_requires=['wheel'],
     zip_safe=False,
 )

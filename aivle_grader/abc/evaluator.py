@@ -22,7 +22,7 @@ class EvaluationResult:
     def get_json(self) -> dict:
         return {
             "name": self.name,
-            "results": self.results,
+            "detail": self.results,
             "value": self.value,
             "error": self.error,
         }

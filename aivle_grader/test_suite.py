@@ -16,6 +16,12 @@ class TestResult:
     def __repr__(self):
         return str(self)
 
+    def get_json(self):
+        return {
+            "case_id": self.case_id,
+            "result": self.result.get_json(),
+        }
+
 
 class TestSuite:
     """TestSuite is a collection of TestCase."""
@@ -24,7 +30,7 @@ class TestSuite:
         self.suite_id = suite_id
         self.test_cases = cases
 
-    def run(self, create_agent: Callable[..., Agent]) -> List[TestResult]:
+    def run(self, create_agent: Callable[..., Agent]) -> dict:
         """Run the test cases in this test suite.
 
         :param create_agent: a function that returns an `Agent` object. Parameters
@@ -35,4 +41,7 @@ class TestSuite:
         for case in self.test_cases:
             res = case.evaluate(create_agent)
             results.append(TestResult(case_id=case.case_id, result=res))
-        return results
+        return {
+            "suite_id": self.suite_id,
+            "results": [x.get_json() for x in results]
+        }

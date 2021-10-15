@@ -1,3 +1,5 @@
+import multiprocessing
+import time
 from multiprocessing import Process, Queue
 
 import gym
@@ -61,7 +63,7 @@ class PongEnvSerializer(EnvSerializer):
 
 
 class PongAgentEnv(AgentEnv):
-    def __init__(self, uid):
+    def __init__(self, uid, port: int):
         base_env = gym.make("PongDuel-v0")
         super().__init__(
             PongEnvSerializer(),
@@ -69,6 +71,7 @@ class PongAgentEnv(AgentEnv):
             base_env.observation_space[0],
             base_env.reward_range,
             uid=uid,
+            port=port
         )
 
 
@@ -87,10 +90,16 @@ def create_agent(**kwargs):
     return PongAgent()
 
 
-def execute(uid, q: Queue):
+def run_judge(return_queue: Queue):
+    judge_env = PongJudgeEnv()
+    return_queue.put(judge_env.bind())
+    judge_env.start()
+
+
+def execute(uid, q: Queue, port: int):
     n_runs = 10
     evaluator = RewardEvaluator()
-    agent_env = PongAgentEnv(uid=uid)
+    agent_env = PongAgentEnv(uid=uid, port=port)
     seeds = []
     tc = ReinforcementLearningTestCase(
         t_max=10000,
@@ -108,13 +117,21 @@ def execute(uid, q: Queue):
 
 
 def main():
-    judge_env = PongJudgeEnv()
-    judge_proc = Process(target=judge_env.start, args=())
+    q = Queue()  # `q` is used to return evaluation result from agent processes
+    return_queue = multiprocessing.Manager().Queue()  # return_queue is used to return port number from judge process
+    judge_proc = Process(target=run_judge, args=(return_queue,))
     judge_proc.start()
-    q = Queue()
+    port = None
+    for _ in range(10):  # wait for up to 10 seconds
+        time.sleep(1)
+        if not return_queue.empty():
+            port = return_queue.get()
+            break
+    if not isinstance(port, int):
+        raise Exception("judge process not properly initialized")
     try:
-        ts_0_proc = Process(target=execute, args=(0, q))
-        ts_1_proc = Process(target=execute, args=(1, q))
+        ts_0_proc = Process(target=execute, args=(0, q, port))
+        ts_1_proc = Process(target=execute, args=(1, q, port))
         ts_0_proc.start()
         ts_1_proc.start()
         ts_0_proc.join()
@@ -128,7 +145,6 @@ def main():
         print(e)
     finally:
         judge_proc.terminate()
-        judge_env.close()
 
 
 if __name__ == "__main__":

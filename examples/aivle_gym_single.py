@@ -1,4 +1,6 @@
-from multiprocessing import Process
+import multiprocessing
+import time
+from multiprocessing import Process, Queue
 
 import gym
 import numpy
@@ -7,7 +9,7 @@ from aivle_gym.env_serializer import EnvSerializer
 from aivle_gym.judge_env import JudgeEnv
 
 from aivle_grader.abc.agent import Agent
-from aivle_grader.evaluator import RewardEvaluator, StepCountEvaluator
+from aivle_grader.evaluator import StepCountEvaluator
 from aivle_grader.test_case import ReinforcementLearningTestCase
 from aivle_grader.test_suite import TestSuite
 
@@ -59,7 +61,7 @@ class CartPoleJudgeEnv(JudgeEnv):
 
 
 class CartPoleAgentEnv(AgentEnv):
-    def __init__(self):
+    def __init__(self, port: int):
         base_env = gym.make("CartPole-v0")
         super().__init__(
             CartPoleEnvSerializer(),
@@ -67,6 +69,7 @@ class CartPoleAgentEnv(AgentEnv):
             base_env.observation_space,
             base_env.reward_range,
             uid=0,
+            port=port
         )  # uid can be any int for single-agent agent env
 
 
@@ -82,13 +85,28 @@ def create_agent(**kwargs):
     return CartPoleAgent()
 
 
-def main():
+def run_judge(return_queue: Queue):
     judge_env = CartPoleJudgeEnv()
-    judge_proc = Process(target=judge_env.start, args=())
+    return_queue.put(judge_env.bind())
+    judge_env.start()
+
+
+def main():
+    manager = multiprocessing.Manager()
+    return_queue = manager.Queue()
+    judge_proc = Process(target=run_judge, args=(return_queue,))
     judge_proc.start()
+    port = None
+    for _ in range(10):  # wait for up to 10 seconds
+        time.sleep(1)
+        if not return_queue.empty():
+            port = return_queue.get()
+            break
+    if not isinstance(port, int):
+        raise Exception("judge process not properly initialized")
     try:
         n_runs = 10
-        env = CartPoleAgentEnv()
+        env = CartPoleAgentEnv(port=port)
         evaluator = StepCountEvaluator()
         seeds = [2333 for _ in range(n_runs)]
         test_case = ReinforcementLearningTestCase(

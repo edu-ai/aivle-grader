@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="aivle_grader",
-    version="0.1.4",
+    version="0.1.5",
     description="Auto grader for OpenAI Gym tasks.",
     url="https://github.com/edu-ai/aivle-grader",
     author="Yuanhong Tan",

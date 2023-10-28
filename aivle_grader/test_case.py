@@ -35,14 +35,12 @@ class ReinforcementLearningTestCase(TestCase):
 
     def run(self, agent):
         for i_episode in range(self.n_runs):
-            state = self.env.reset()
-            if self.use_seed:
-                self.env.seed(self.seeds[i_episode])
+            state = self.env.reset(seed = 12)
             agent.reset()
             self.evaluator.reset()
             for t in range(self.t_max):
                 action = agent.step(state)
-                next_state, reward, done, info = self.env.step(action)
+                next_state, reward, done, truncated, info = self.env.step(action)
                 self.evaluator.step(
                     {
                         "state": state,

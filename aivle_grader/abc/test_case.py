@@ -56,6 +56,7 @@ class TestCase(metaclass=ABCMeta):
                 agent = create_agent(**self._agent_init)
                 return self.run(agent)
         except Exception as e:
+            print(e)
             return self._terminate(e)
 
     def _terminate(self, e: Exception) -> EvaluationResult:
